@@ -924,6 +924,11 @@ esp_err_t WiFiGenericClass::_eventCallback(arduino_event_t *event)
     } else if(event->event_id == ARDUINO_EVENT_ETH_GOT_IP6) {
     	setStatusBits(ETH_CONNECTED_BIT | ETH_HAS_IP6_BIT);
     } else if(event->event_id == ARDUINO_EVENT_SC_GOT_SSID_PSWD) {
+      // Remove this line if you're using ESP TOUCH V1
+      // You have to access reserved data before changing the mode
+      // See https://github.com/espressif/esp-idf/tree/1cb31e50943bb757966ca91ed7f4852692a5b0ed/examples/wifi/smart_config
+      ESP_ERROR_CHECK(esp_smartconfig_get_rvd_data(WiFiSTAClass::_smartConfigRvdData, sizeof(WiFiSTAClass::_smartConfigRvdData)));
+      // Then connect the WiFi
     	WiFi.begin(
 			(const char *)event->event_info.sc_got_ssid_pswd.ssid,
 			(const char *)event->event_info.sc_got_ssid_pswd.password,

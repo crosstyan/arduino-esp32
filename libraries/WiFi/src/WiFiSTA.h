@@ -95,18 +95,19 @@ protected:
 
 public:
   bool beginSmartConfig();
-  bool beginSmartConfigV2();
   bool stopSmartConfig();
   bool smartConfigDone();
-  bool smartConfigRvdData();
+  bool smartConfigChkRvdData();
+  static uint8_t* smartConfigRvdData();
   smartconfig_type_t smartConfigType();
 
   static bool _smartConfigDone;
-  static uint8_t _smartRevData[128];
+  static uint8_t _smartConfigRvdData[128];
   smartconfig_type_t _smartConfigType;
 
 protected:
   static bool _smartConfigStarted;
+
 };
 
 #endif /* ESP32WIFISTA_H_ */

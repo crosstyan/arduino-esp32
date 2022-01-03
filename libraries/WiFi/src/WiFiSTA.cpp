@@ -655,37 +655,12 @@ IPv6Address WiFiSTAClass::localIPv6() {
 
 bool WiFiSTAClass::_smartConfigStarted = false;
 bool WiFiSTAClass::_smartConfigDone = false;
-uint8_t WiFiSTAClass::_smartRevData[128] = {0};
+uint8_t WiFiSTAClass::_smartConfigRvdData[128] = {0 };
 
+// Original ESP TOUCH V1 has been modified
+// If you want to use reserved data you have to set it to V2
+// WiFiGeneric.cpp should also be changed
 bool WiFiSTAClass::beginSmartConfig() {
-  esp_err_t err;
-  if (_smartConfigStarted) {
-    return false;
-  }
-
-  if (!WiFi.mode(WIFI_STA)) {
-    return false;
-  }
-  esp_wifi_disconnect();
-
-  smartconfig_start_config_t conf = SMARTCONFIG_START_CONFIG_DEFAULT();
-  err = esp_smartconfig_set_type(SC_TYPE_ESPTOUCH);
-  if (err != ESP_OK) {
-    log_e("SmartConfig Set Type Failed!");
-    return false;
-  }
-  _smartConfigType = SC_TYPE_ESPTOUCH;
-  err = esp_smartconfig_start(&conf);
-  if (err != ESP_OK) {
-    log_e("SmartConfig Start Failed!");
-    return false;
-  }
-  _smartConfigStarted = true;
-  _smartConfigDone = false;
-  return true;
-}
-
-bool WiFiSTAClass::beginSmartConfigV2() {
   esp_err_t err;
   if (_smartConfigStarted) {
     return false;
@@ -736,18 +711,20 @@ bool WiFiSTAClass::smartConfigDone() {
   return _smartConfigDone;
 }
 
-bool WiFiSTAClass::smartConfigRvdData() {
+// handled in WiFiGeneric.cpp event loop
+// This function just check if reserved data supported
+bool WiFiSTAClass::smartConfigChkRvdData() {
   // esp_err_t err;
   if (_smartConfigType != SC_TYPE_ESPTOUCH_V2) {
     log_e("SmartConfig V2 required");
     return false;
   }
-  ESP_ERROR_CHECK(esp_smartconfig_get_rvd_data(_smartRevData, 128));
-  // if (err != ESP_OK) {
-  //   log_e("SmartConfig Get Rev Data Failed!");
-  //   return false;
-  // }
+  if (!_smartConfigDone){
+    log_e("SmartConfig is not finished");
+  }
   return true;
 }
+
+uint8_t* WiFiSTAClass::smartConfigRvdData() { return _smartConfigRvdData;}
 
 smartconfig_type_t WiFiSTAClass::smartConfigType() { return _smartConfigType; }
