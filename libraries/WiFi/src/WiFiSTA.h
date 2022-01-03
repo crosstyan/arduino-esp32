@@ -23,84 +23,90 @@
 #ifndef ESP32WIFISTA_H_
 #define ESP32WIFISTA_H_
 
-
-#include "WiFiType.h"
 #include "WiFiGeneric.h"
+#include "WiFiType.h"
 #ifdef ESP_IDF_VERSION_MAJOR
 #include "esp_event.h"
 #endif
 
-
-class WiFiSTAClass
-{
-    // ----------------------------------------------------------------------------------------------
-    // ---------------------------------------- STA function ----------------------------------------
-    // ----------------------------------------------------------------------------------------------
+class WiFiSTAClass {
+  // ----------------------------------------------------------------------------------------------
+  // ---------------------------------------- STA function
+  // ----------------------------------------
+  // ----------------------------------------------------------------------------------------------
 
 public:
+  wl_status_t begin(const char *ssid, const char *passphrase = NULL,
+                    int32_t channel = 0, const uint8_t *bssid = NULL,
+                    bool connect = true);
+  wl_status_t begin(char *ssid, char *passphrase = NULL, int32_t channel = 0,
+                    const uint8_t *bssid = NULL, bool connect = true);
+  wl_status_t begin();
 
-    wl_status_t begin(const char* ssid, const char *passphrase = NULL, int32_t channel = 0, const uint8_t* bssid = NULL, bool connect = true);
-    wl_status_t begin(char* ssid, char *passphrase = NULL, int32_t channel = 0, const uint8_t* bssid = NULL, bool connect = true);
-    wl_status_t begin();
+  bool config(IPAddress local_ip, IPAddress gateway, IPAddress subnet,
+              IPAddress dns1 = (uint32_t)0x00000000,
+              IPAddress dns2 = (uint32_t)0x00000000);
 
-    bool config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1 = (uint32_t)0x00000000, IPAddress dns2 = (uint32_t)0x00000000);
+  bool reconnect();
+  bool disconnect(bool wifioff = false, bool eraseap = false);
 
-    bool reconnect();
-    bool disconnect(bool wifioff = false, bool eraseap = false);
+  bool isConnected();
 
-    bool isConnected();
+  bool setAutoConnect(bool autoConnect);
+  bool getAutoConnect();
 
-    bool setAutoConnect(bool autoConnect);
-    bool getAutoConnect();
+  bool setAutoReconnect(bool autoReconnect);
+  bool getAutoReconnect();
 
-    bool setAutoReconnect(bool autoReconnect);
-    bool getAutoReconnect();
+  uint8_t waitForConnectResult(unsigned long timeoutLength = 60000);
 
-    uint8_t waitForConnectResult(unsigned long timeoutLength = 60000);
+  // STA network info
+  IPAddress localIP();
 
-    // STA network info
-    IPAddress localIP();
+  uint8_t *macAddress(uint8_t *mac);
+  String macAddress();
 
-    uint8_t * macAddress(uint8_t* mac);
-    String macAddress();
+  IPAddress subnetMask();
+  IPAddress gatewayIP();
+  IPAddress dnsIP(uint8_t dns_no = 0);
 
-    IPAddress subnetMask();
-    IPAddress gatewayIP();
-    IPAddress dnsIP(uint8_t dns_no = 0);
+  IPAddress broadcastIP();
+  IPAddress networkID();
+  uint8_t subnetCIDR();
 
-    IPAddress broadcastIP();
-    IPAddress networkID();
-    uint8_t subnetCIDR();
-    
-    bool enableIpV6();
-    IPv6Address localIPv6();
+  bool enableIpV6();
+  IPv6Address localIPv6();
 
-    // STA WiFi info
-    static wl_status_t status();
-    String SSID() const;
-    String psk() const;
+  // STA WiFi info
+  static wl_status_t status();
+  String SSID() const;
+  String psk() const;
 
-    uint8_t * BSSID();
-    String BSSIDstr();
+  uint8_t *BSSID();
+  String BSSIDstr();
 
-    int8_t RSSI();
+  int8_t RSSI();
 
-    static void _setStatus(wl_status_t status);
-    
+  static void _setStatus(wl_status_t status);
+
 protected:
-    static bool _useStaticIp;
-    static bool _autoReconnect;
+  static bool _useStaticIp;
+  static bool _autoReconnect;
 
-public: 
-    bool beginSmartConfig();
-    bool stopSmartConfig();
-    bool smartConfigDone();
+public:
+  bool beginSmartConfig();
+  bool beginSmartConfigV2();
+  bool stopSmartConfig();
+  bool smartConfigDone();
+  bool smartConfigRvdData();
+  smartconfig_type_t smartConfigType();
 
-    static bool _smartConfigDone;
+  static bool _smartConfigDone;
+  static uint8_t _smartRevData[128];
+  smartconfig_type_t _smartConfigType;
+
 protected:
-    static bool _smartConfigStarted;
-
+  static bool _smartConfigStarted;
 };
-
 
 #endif /* ESP32WIFISTA_H_ */
